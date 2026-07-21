@@ -1,0 +1,655 @@
+/* public/assembly/css/assembly.css
+ *
+ * Стилі застосунку складання. Токени (--bg, --accent, шрифти тощо) успадковані
+ * з /css/styles.css — тут лише layout і компоненти, специфічні для мобільного
+ * покрокового інтерфейсу.
+ */
+
+html, body {
+  height: 100%;
+}
+
+.assembly-body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  /* безпечні відступи під "чубчик"/системну панель на iPhone */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.view {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Логотип (менша версія тієї ж мітки, що на головному сайті) ---------- */
+
+.brand-mark-lg {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 18px;
+  display: block;
+}
+
+/* ---------- Екран входу ---------- */
+
+.view-login {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.view-login .eyebrow {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 6vw, 2rem);
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+
+.login-sub {
+  color: var(--ink-dim);
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 0 0 28px;
+}
+
+.code-input {
+  width: 100%;
+  background: var(--bg-raised-2);
+  border: 1.5px solid var(--line-bright);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  text-align: center;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  /* мінімум 16px критично на iOS — менше викликає авто-зум при фокусі */
+}
+
+.code-input::placeholder {
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.code-input.has-error {
+  border-color: var(--danger);
+}
+
+.btn-giant {
+  padding: 19px 20px;
+  font-size: 17px;
+  border-radius: var(--radius-md);
+}
+
+.login-fineprint {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 22px;
+  line-height: 1.5;
+}
+
+.login-fineprint a {
+  color: var(--ink-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#login-error {
+  text-align: left;
+  margin-bottom: 14px;
+}
+
+/* status-line / banner / spinner / btn / eyebrow / mono — успадковані з
+ * головного styles.css, тут не дублюємо */
+
+/* ---------- Дрібні утиліти ---------- */
+
+.assembly-body .banner {
+  margin-bottom: 0;
+}
+
+@media (min-width: 720px) {
+  /* Хоч застосунок mobile-first, лишаємо розумний максимум ширини на
+     планшетах/десктопі, щоб не розтягувалось на весь екран потворно. */
+  .login-card {
+    max-width: 420px;
+  }
+}
+
+/* ---------- Головний екран складання ---------- */
+
+.view-main {
+  padding: 0;
+  justify-content: flex-start;
+}
+
+.assembly-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.assembly-code {
+  font-size: 13px;
+  color: var(--ink-faint);
+  letter-spacing: 0.03em;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line-bright);
+  background: transparent;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.icon-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+/* --- Колесо --- */
+
+.wheel-wrap {
+  flex: none;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 18px 20px 6px;
+}
+
+#wheel-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wheel-rim {
+  fill: var(--bg-raised);
+  stroke: var(--line-bright);
+  stroke-width: 1;
+}
+
+.wheel-tick {
+  stroke: #3a3840;
+  stroke-width: 1.4;
+}
+
+.wheel-tick-major {
+  stroke: #4d4a54;
+  stroke-width: 1.8;
+}
+
+.wheel-sector-label {
+  fill: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.wheel-marker {
+  transition: cx 0.25s ease, cy 0.25s ease;
+}
+
+.wheel-marker-from {
+  fill: var(--ink-faint);
+  opacity: 0.7;
+}
+
+.wheel-marker-to {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px rgba(198, 161, 91, 0.55));
+}
+
+.wheel-chord-preview {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-opacity: 0.55;
+  stroke-dasharray: 3 4;
+  fill: none;
+  transition: opacity 0.2s ease;
+}
+
+/* --- Інструкція --- */
+
+.instruction-area {
+  flex: none;
+  text-align: center;
+  padding: 6px 20px 14px;
+}
+
+.step-counter {
+  font-size: 13px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.step-counter .step-current {
+  color: var(--accent-bright);
+  font-weight: 600;
+}
+
+.instruction-giant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.instruction-from,
+.instruction-to {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 15vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.instruction-from {
+  color: var(--ink-dim);
+}
+
+.instruction-to {
+  color: var(--ink);
+  text-shadow: 0 0 24px rgba(198, 161, 91, 0.35);
+}
+
+.instruction-arrow {
+  font-size: clamp(1.4rem, 6vw, 1.8rem);
+  color: var(--accent);
+}
+
+/* --- Статистика нитки --- */
+
+.thread-stat {
+  flex: none;
+  padding: 0 24px 14px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.thread-stat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.thread-used {
+  color: var(--accent-bright);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.thread-total,
+.thread-stat-sep {
+  color: var(--ink-faint);
+}
+
+.thread-progress-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.thread-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.25s ease;
+}
+
+/* --- Панель контролів (наповнить Частина 4) --- */
+
+.controls-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 14px 20px calc(20px + env(safe-area-inset-bottom));
+  min-height: 80px;
+}
+
+/* --- Крок-лічильник як кнопка (відкриває панель переходу) --- */
+
+.step-counter {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+.step-counter:hover {
+  background: var(--bg-raised-2);
+}
+
+/* --- Панель "перейти на крок" --- */
+
+.jump-panel {
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+}
+
+.jump-panel.is-open {
+  max-height: 140px;
+  opacity: 1;
+  padding: 10px 24px 16px;
+}
+
+.jump-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.jump-slider {
+  flex: 1;
+}
+
+.jump-value {
+  min-width: 52px;
+  text-align: right;
+  color: var(--accent-bright);
+  font-size: 14px;
+}
+
+.jump-panel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-sm {
+  width: auto;
+  flex: 1;
+  padding: 11px 14px;
+  font-size: 13.5px;
+}
+
+/* --- Слайдер швидкості --- */
+
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.speed-label {
+  font-size: 12px;
+  color: var(--ink-faint);
+  flex: none;
+}
+
+.speed-value {
+  font-size: 12.5px;
+  color: var(--accent-bright);
+  flex: none;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* Стилізовані range-повзунки (спільні для jump-slider і speed-slider) */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line-bright);
+  outline: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+  cursor: pointer;
+  border: none;
+}
+
+.controls-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.controls-top-row.is-hidden {
+  display: none;
+}
+
+.voice-lang-toggle {
+  display: flex;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  flex: none;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 6px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-btn.is-active {
+  background: var(--accent);
+  color: #17140c;
+}
+
+.voice-fallback-note {
+  flex: 1;
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.voice-fallback-note.is-visible {
+  opacity: 1;
+}
+
+.voice-mute-btn {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.voice-mute-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* --- Головні кнопки керування (одним рядом: Попередній / Play-Pause / Наступний) --- */
+
+.controls-row {
+  display: grid;
+  grid-template-columns: 64px 64px 1fr;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ctrl-btn {
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.ctrl-btn:active {
+  transform: scale(0.94);
+}
+
+.ctrl-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ctrl-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ctrl-btn-secondary {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-raised-2);
+  border: 1px solid var(--line-bright);
+  color: var(--ink-dim);
+}
+
+.ctrl-btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+.ctrl-btn-play {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-raised-2);
+  border: 1px solid var(--line-bright);
+  color: var(--ink);
+}
+
+.ctrl-btn-play:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+.ctrl-btn-play.is-playing {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent-bright);
+}
+
+.ctrl-btn-next {
+  width: 100%;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background: var(--accent);
+  color: #17140c;
+}
+
+.ctrl-btn-next:hover:not(:disabled) {
+  background: var(--accent-bright);
+}
+
+.ctrl-btn-next svg {
+  width: 30px;
+  height: 30px;
+}
+
+/* --- Банер завершення --- */
+
+.completion-banner {
+  display: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--success);
+  background: var(--success-dim);
+  border: 1px solid rgba(143, 174, 139, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.completion-banner.is-active {
+  display: block;
+}

@@ -1,0 +1,10 @@
+node_modules/
+tmp/*
+!tmp/.gitkeep
+bin/*
+!bin/.gitkeep
+data/orders/*
+!data/orders/.gitkeep
+.env
+*.log
+.DS_Store

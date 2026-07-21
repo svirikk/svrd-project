@@ -1,0 +1,22 @@
+{
+  "name": "string-art-website",
+  "version": "1.0.0",
+  "description": "Комерційний сайт для генерації string-art портретів з фото клієнта",
+  "private": true,
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

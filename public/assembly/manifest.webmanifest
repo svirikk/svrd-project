@@ -1,0 +1,12 @@
+{
+  "name": "Strung. — Складання картини",
+  "short_name": "Strung. Складання",
+  "description": "Покрокова інструкція складання string art картини за кодом замовлення.",
+  "start_url": "/assembly/",
+  "scope": "/assembly/",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
+  "orientation": "portrait",
+  "icons": []
+}

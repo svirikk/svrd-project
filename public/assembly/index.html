@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0c" />
+<title>Складання — Strung.</title>
+<meta name="description" content="Покрокова інструкція складання вашої string art картини за кодом замовлення." />
+<link rel="manifest" href="/assembly/manifest.webmanifest" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="/css/styles.css" />
+<link rel="stylesheet" href="/assembly/css/assembly.css" />
+</head>
+<body class="assembly-body">
+
+<div id="view-login" class="view view-login">
+  <div class="login-card">
+    <svg class="brand-mark brand-mark-lg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="20" cy="20" r="18.5" stroke="#c6a15b" stroke-width="1"/>
+      <path d="M3 24 L34 12 M6 32 L37 9 M2 15 L28 36 M12 3 L36 27 M8 6 L31 33" stroke="#c6a15b" stroke-width="0.6" stroke-opacity="0.85"/>
+    </svg>
+
+    <span class="eyebrow">Strung. складання</span>
+    <h1 class="login-title">Введіть код замовлення</h1>
+    <p class="login-sub">Код надіслано вам у SMS або на пошту після оформлення замовлення — виглядає як <span class="mono">SA-20260716-4F2A</span>.</p>
+
+    <form id="login-form" novalidate>
+      <input
+        id="code-input"
+        class="code-input"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        placeholder="SA-XXXXXXXX-XXXX"
+        aria-label="Код замовлення"
+      />
+      <div class="banner banner-warning" id="login-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="login-error-text"></span>
+      </div>
+      <button type="submit" class="btn btn-primary btn-giant" id="login-submit">Розпочати складання</button>
+    </form>
+
+    <div class="status-line" id="login-status">
+      <span class="spinner"></span>
+      <span id="login-status-text">Перевіряємо код…</span>
+    </div>
+
+    <p class="login-fineprint">Загубили код? Напишіть нам — ми надішлемо ще раз.</p>
+  </div>
+</div>
+
+<div id="view-main" class="view view-main" style="display:none">
+  <header class="assembly-header">
+    <span class="assembly-code mono" id="header-code">—</span>
+    <button type="button" class="icon-btn" id="logout-btn" aria-label="Увійти іншим кодом">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
+  </header>
+
+  <div class="wheel-wrap">
+    <svg id="wheel-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="150" cy="150" r="128" class="wheel-rim" />
+      <g id="wheel-sector-arcs"></g>
+      <g id="wheel-pins"></g>
+      <g id="wheel-sector-labels"></g>
+      <line id="wheel-chord-preview" class="wheel-chord-preview" x1="0" y1="0" x2="0" y2="0" />
+      <circle id="wheel-from-marker" class="wheel-marker wheel-marker-from" r="5" cx="0" cy="0" />
+      <circle id="wheel-to-marker" class="wheel-marker wheel-marker-to" r="7" cx="0" cy="0" />
+    </svg>
+  </div>
+
+  <div class="instruction-area">
+    <button type="button" class="step-counter mono" id="step-counter">—</button>
+    <div class="instruction-giant" id="instruction-giant">
+      <span id="instruction-from" class="instruction-from"></span>
+      <span class="instruction-arrow" id="instruction-arrow">→</span>
+      <span id="instruction-to" class="instruction-to"></span>
+    </div>
+  </div>
+
+  <div class="thread-stat">
+    <div class="thread-stat-row">
+      <span class="mono thread-used" id="thread-used">0 м</span>
+      <span class="mono thread-stat-sep">/</span>
+      <span class="mono thread-total" id="thread-total">0 м</span>
+    </div>
+    <div class="thread-progress-track"><div class="thread-progress-fill" id="thread-progress-fill"></div></div>
+  </div>
+
+  <!-- Панель "перейти на крок" — прихована, розкривається тапом по лічильнику кроку -->
+  <div class="jump-panel" id="jump-panel">
+    <div class="jump-panel-row">
+      <input type="range" id="jump-slider" class="jump-slider" min="0" max="1" value="0" step="1" aria-label="Обрати крок" />
+      <span class="mono jump-value" id="jump-value">0</span>
+    </div>
+    <div class="jump-panel-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="jump-cancel">Скасувати</button>
+      <button type="button" class="btn btn-primary btn-sm" id="jump-confirm">Перейти</button>
+    </div>
+  </div>
+
+  <div id="controls-panel" class="controls-panel">
+    <!-- Перемикач мови голосового асистента -->
+    <div class="controls-top-row" id="controls-top-row">
+      <div class="voice-lang-toggle" role="group" aria-label="Мова голосового асистента">
+        <button type="button" class="lang-btn is-active" id="lang-uk-btn" data-lang="uk">UA</button>
+        <button type="button" class="lang-btn" id="lang-en-btn" data-lang="en">EN</button>
+      </div>
+      <span class="voice-fallback-note" id="voice-fallback-note"></span>
+    </div>
+
+    <div class="speed-row" id="speed-row">
+      <span class="mono speed-label">Швидкість</span>
+      <input type="range" id="speed-slider" class="speed-slider" min="1" max="10" step="1" value="3" aria-label="Швидкість автоплею, секунд на крок" />
+      <span class="mono speed-value" id="speed-value">3с</span>
+      <button type="button" class="icon-btn voice-mute-btn" id="mute-btn" aria-label="Вимкнути голос">
+        <svg id="mute-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        <svg id="mute-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m23 9-6 6M17 9l6 6"/></svg>
+      </button>
+    </div>
+
+
+    <div class="controls-row">
+      <button type="button" class="ctrl-btn ctrl-btn-secondary" id="prev-btn" aria-label="Попередній крок">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      <button type="button" class="ctrl-btn ctrl-btn-play" id="play-btn" aria-label="Відтворити автоматично">
+        <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+
+      <button type="button" class="ctrl-btn ctrl-btn-next" id="next-btn" aria-label="Наступний крок">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="completion-banner" id="completion-banner">
+      🎉 Готово! Усі <span id="completion-total">0</span> кроків завершено.
+    </div>
+  </div>
+</div>
+
+<script src="/assembly/js/sectors.js"></script>
+<script src="/assembly/js/wheel.js"></script>
+<script src="/assembly/js/voice.js"></script>
+<script src="/assembly/js/app.js"></script>
+</body>
+</html>

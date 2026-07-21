@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Strung. — String Art з вашого фото</title>
+<meta name="description" content="Завантажте фото — отримайте попередній перегляд картини з нитки на 240 пінах, і замовте готовий набір для плетіння." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="20" r="18.5" stroke="#c6a15b" stroke-width="1"/>
+        <path d="M3 24 L34 12 M6 32 L37 9 M2 15 L28 36 M12 3 L36 27 M8 6 L31 33" stroke="#c6a15b" stroke-width="0.6" stroke-opacity="0.85"/>
+      </svg>
+      Strung.
+    </a>
+    <nav class="nav-links">
+      <a href="#how">Як це працює</a>
+      <a href="#product">Продукт</a>
+      <a href="#trust">Довіра</a>
+    </nav>
+    <a href="#generator" class="nav-cta">Створити прев'ю</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="generator">
+    <div class="container hero-grid">
+
+      <div class="hero-copy">
+        <span class="eyebrow">Персоналізований string art</span>
+        <h1>Кожна нитка&nbsp;&mdash; <em>вигин вашого обличчя.</em></h1>
+        <p class="lede">
+          Завантажте фото — наш рушій розрахує, як 240 цвяхів і одна безперервна
+          нитка складуться у ваш портрет. Побачите результат ще до замовлення.
+        </p>
+
+        <div class="hero-facts">
+          <div class="hero-fact"><strong>240</strong>пінів на рамі</div>
+          <div class="hero-fact"><strong>~1.5&nbsp;км</strong>нитки на роботу</div>
+          <div class="hero-fact"><strong>50×50</strong>см, готова рама</div>
+          <div class="hero-fact"><strong>&lt;20&nbsp;с</strong>на прев'ю</div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="generator-card" id="generator-card">
+
+          <div class="dropzone-wrap">
+            <svg class="pin-ring" viewBox="0 0 100 100" aria-hidden="true">
+              <g id="pin-ring-dots"></g>
+            </svg>
+
+            <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Завантажити фото">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              <div class="dropzone-title">Перетягніть фото сюди</div>
+              <div class="dropzone-sub">або натисніть, щоб обрати · JPG/PNG, до 15&nbsp;МБ</div>
+              <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" />
+            </div>
+
+            <div class="crop-stage" id="crop-stage">
+              <img id="crop-image" alt="" />
+            </div>
+
+            <div class="result-stage" id="result-stage">
+              <img id="result-image" alt="Згенерована картина" />
+            </div>
+          </div>
+
+          <p class="guidance">
+            <strong>Для найкращого результату:</strong> обличчя анфас, рівне освітлення,
+            без сонцезахисних окулярів. Складний або захаращений фон ми спрощуємо
+            автоматично, але однотонний фон завжди дає чіткіший портрет.
+          </p>
+
+          <div class="banner banner-warning" id="warning-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+            <span id="warning-text"></span>
+          </div>
+
+          <div class="banner banner-warning" id="error-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span id="error-text"></span>
+          </div>
+
+          <div class="status-line" id="status-line">
+            <span class="spinner"></span>
+            <span id="status-text">Готуємо фото…</span>
+          </div>
+
+          <div class="stats-row" id="stats-row" style="display:none">
+            <div class="stat"><div class="stat-value" id="stat-lines">—</div><div class="stat-label">ліній</div></div>
+            <div class="stat"><div class="stat-value" id="stat-meters">—</div><div class="stat-label">метрів нитки</div></div>
+            <div class="stat"><div class="stat-value" id="stat-pins">240</div><div class="stat-label">пінів</div></div>
+          </div>
+
+          <div id="cta-area">
+            <button class="btn btn-primary" id="generate-btn" disabled>Спершу оберіть фото</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="container">
+      <span class="eyebrow">Як це працює</span>
+      <h2 class="section-title">Від фото до рами — три кроки.</h2>
+
+      <div class="steps-grid">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Завантажте фото</h3>
+          <p>Обличчя анфас, рівне освітлення. Кадруєте прямо в браузері — коло на екрані відповідає колу на рамі.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Побачте прев'ю</h3>
+          <p>Наш рушій розраховує послідовність із 240 пінів за ~15&nbsp;секунд і показує, як виглядатиме готова робота.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Ми сплетемо й надішлемо</h3>
+          <p>Той самий розрахунок повторюємо вручну на рамі 50×50&nbsp;см, перевіряємо і відправляємо поштою у вашу країну.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="product">
+    <div class="container">
+      <div class="product-grid">
+        <div class="product-copy">
+          <span class="eyebrow">Що ви отримуєте</span>
+          <h2 class="section-title">Готова рама, не набір для збирання.</h2>
+          <p class="section-lede">
+            Ми самі натягуємо нитку за вашим прев'ю й надсилаємо вже готову роботу —
+            залишається тільки повісити на стіну.
+          </p>
+
+          <ul class="kit-list">
+            <li><span class="kit-dot"></span>Дерев'яна рама 50×50&nbsp;см із 240 латунними пінами</li>
+            <li><span class="kit-dot"></span>Безперервна чорна нитка, ~1.5–1.9&nbsp;км залежно від фото</li>
+            <li><span class="kit-dot"></span>Задня стінка з кріпленням для стіни</li>
+            <li><span class="kit-dot"></span>Картка з описом техніки — гарний штрих для подарунка</li>
+          </ul>
+
+          <div class="price-row">
+            <div>
+              <div class="price" id="product-price">₾&nbsp;<span data-price>249</span></div>
+              <div class="price-sub">безкоштовна доставка по Грузії · трек-номер для міжнародних відправлень</div>
+            </div>
+            <a href="#generator" class="btn btn-primary price-cta">Створити своє прев'ю</a>
+          </div>
+        </div>
+
+        <div class="kit-visual" aria-hidden="true">
+          <svg viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="14" y="14" width="292" height="292" rx="6" stroke="#3a3840" stroke-width="2"/>
+            <circle cx="160" cy="160" r="118" stroke="#232227" stroke-width="1"/>
+            <g id="kit-pins"></g>
+            <g id="kit-threads"></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="trust">
+    <div class="container">
+      <span class="eyebrow">Чому нам можна довіряти</span>
+      <h2 class="section-title">Ми щойно почали — і саме тому уважні до кожної роботи.</h2>
+
+      <div class="trust-grid">
+        <div class="trust-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#c6a15b" stroke-width="1.5"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          <h3>Перевірка вручну</h3>
+          <p>Кожну раму ми оглядаємо перед пакуванням і звіряємо з прев'ю, яке ви бачили на сайті.</p>
+        </div>
+        <div class="trust-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#c6a15b" stroke-width="1.5"><path d="M3 7h13l4 4v6h-4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          <h3>Надійна доставка</h3>
+          <p>Пакуємо в жорстку коробку з захистом кутів, кожне відправлення — з трек-номером.</p>
+        </div>
+        <div class="trust-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#c6a15b" stroke-width="1.5"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+          <h3>Прев'ю = результат</h3>
+          <p>Той самий алгоритм, який рахує прев'ю на сайті, керує тим, як ми плетемо раму.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Модалка замовлення -->
+  <div class="modal-overlay" id="order-modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="order-modal-title">
+      <button class="modal-close" id="order-modal-close" aria-label="Закрити">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="modal-body" id="order-modal-form-view">
+        <div class="modal-header">
+          <img id="order-modal-thumb" alt="Ваша картина" />
+          <div>
+            <h3 id="order-modal-title">Оформлення замовлення</h3>
+            <p class="modal-sub">
+              <span id="order-modal-lines">—</span>&nbsp;ліній ·
+              ~<span id="order-modal-meters">—</span>&nbsp;м нитки ·
+              <span data-price-copy>₾249</span>
+            </p>
+          </div>
+        </div>
+
+        <form id="order-form" novalidate>
+          <div class="field">
+            <label for="f-fullName">Повне ім'я <span class="req">*</span></label>
+            <input id="f-fullName" name="fullName" type="text" autocomplete="name" placeholder="Ivan Petrenko" />
+            <span class="field-error" data-error-for="fullName"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field field-phone">
+              <label for="f-countryCode">Телефон <span class="req">*</span></label>
+              <div class="phone-group">
+                <select id="f-countryCode" aria-label="Код країни">
+                  <option value="+995">🇬🇪 +995</option>
+                  <option value="+380">🇺🇦 +380</option>
+                  <option value="+48">🇵🇱 +48</option>
+                  <option value="+49">🇩🇪 +49</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+39">🇮🇹 +39</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+31">🇳🇱 +31</option>
+                  <option value="+40">🇷🇴 +40</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="">Інше</option>
+                </select>
+                <input id="f-phoneLocal" type="tel" autocomplete="tel-national" placeholder="555 123 456" />
+              </div>
+              <span class="field-error" data-error-for="phone"></span>
+            </div>
+
+            <div class="field">
+              <label for="f-email">Email <span class="req">*</span></label>
+              <input id="f-email" name="email" type="email" autocomplete="email" placeholder="ivan@example.com" />
+              <span class="field-error" data-error-for="email"></span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="f-country">Країна <span class="req">*</span></label>
+              <input id="f-country" name="country" type="text" autocomplete="country-name" placeholder="Georgia" />
+              <span class="field-error" data-error-for="country"></span>
+            </div>
+            <div class="field">
+              <label for="f-city">Місто <span class="req">*</span></label>
+              <input id="f-city" name="city" type="text" autocomplete="address-level2" placeholder="Batumi" />
+              <span class="field-error" data-error-for="city"></span>
+            </div>
+            <div class="field field-zip">
+              <label for="f-zip">Індекс <span class="req">*</span></label>
+              <input id="f-zip" name="zip" type="text" autocomplete="postal-code" placeholder="6000" />
+              <span class="field-error" data-error-for="zip"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-address1">Адреса <span class="req">*</span></label>
+            <input id="f-address1" name="addressLine1" type="text" autocomplete="address-line1" placeholder="Rustaveli St 10, apt 5" />
+            <span class="field-error" data-error-for="addressLine1"></span>
+          </div>
+
+          <div class="field">
+            <label for="f-address2">Адреса, рядок 2 <span class="opt">(необов'язково)</span></label>
+            <input id="f-address2" name="addressLine2" type="text" autocomplete="address-line2" placeholder="Під'їзд, поверх" />
+          </div>
+
+          <div class="banner banner-warning" id="order-error-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span id="order-error-text"></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="order-submit-btn">Підтвердити замовлення</button>
+          <p class="modal-fineprint">Дані йдуть напряму нашій команді для пакування й доставки — без збереження в базі даних.</p>
+        </form>
+      </div>
+
+      <div class="modal-body modal-success" id="order-modal-success-view" style="display:none">
+        <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="#8fae8b" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+        <h3>Замовлення прийнято</h3>
+        <p class="modal-sub">Номер замовлення</p>
+        <p class="order-number" id="order-number-display"></p>
+        <p class="modal-fineprint">Ми напишемо на вашу пошту, щойно робота вирушить у дорогу.</p>
+        <button type="button" class="btn btn-ghost" id="order-modal-done-btn">Закрити</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© 2026 Strung. — string art studio, Batumi</span>
+    <span>hello@strung.example</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/order-modal.js"></script>
+</body>
+</html>
