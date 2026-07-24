@@ -1,6 +1,30 @@
 // server/index.js
 require('dotenv').config();
 
+// --- Глобальний запобіжник (друга лінія захисту) ---
+// Node.js 18+ за замовчуванням АВАРІЙНО ЗАВЕРШУЄ ВЕСЬ ПРОЦЕС при
+// необробленому promise rejection. Це і спричиняло симптом "після
+// оформлення замовлення / через якийсь час — Failed to fetch на все":
+// один необроблений виняток в async-роуті валив увесь сервер, і Railway
+// показував "Failed to fetch" для ЛЮБОГО запиту, поки не перезапустить
+// контейнер. Головний фікс — try/catch навколо кожного async-роута
+// (див. server/routes/order.js), а це — запобіжник на майбутнє, якщо
+// колись хтось (включно зі мною) забуде обгорнути новий роут.
+process.on('unhandledRejection', (reason) => {
+  console.error('!!! UNHANDLED PROMISE REJECTION (сервер лишається живим, але це треба виправити) !!!');
+  console.error(reason);
+});
+
+// Справжній uncaughtException (поза Promise-контекстом) — стан процесу
+// після цього недостовірний, тож логуємо максимально чітко й свідомо
+// завершуємо процес (Railway автоматично перезапустить контейнер) замість
+// намагатись "жити далі" в непередбачуваному стані.
+process.on('uncaughtException', (err) => {
+  console.error('!!! UNCAUGHT EXCEPTION — процес завершується, Railway має перезапустити контейнер !!!');
+  console.error(err);
+  process.exit(1);
+});
+
 const express = require('express');
 const fs = require('fs');
 const config = require('./config');
