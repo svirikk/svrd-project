@@ -24,7 +24,15 @@ const EXT_BY_MIME = {
 };
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
+  destination: (req, file, cb) => {
+    // Самовідновлення: якщо тека колись зникне (будь-яка інша причина,
+    // не тільки той конкретний баг з погодинною чисткою, який ми вже
+    // виправили) — просто перестворюємо її перед кожним записом.
+    // mkdirSync з recursive:true нічого не робить, якщо тека вже існує,
+    // тож це не додає відчутних витрат при звичайній роботі.
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    cb(null, uploadsDir);
+  },
   filename: (req, file, cb) => {
     // Ім'я файлу генеруємо самі — ніколи не довіряємо оригінальному імені
     // від клієнта (шлях/спецсимволи тощо).
