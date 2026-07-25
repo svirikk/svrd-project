@@ -129,3 +129,17 @@ app.use((err, req, res, next) => {
 app.listen(config.PORT, () => {
   console.log(`String Art backend запущено на порту ${config.PORT}`);
 });
+
+// Періодичний "пульс" пам'яті раз на 10 хвилин. OOM-крах (вбивство
+// контейнера через нестачу пам'яті) сам по собі НІЧОГО не пише в наші
+// логи — Railway просто вбиває процес ззовні. Цей пульс лишає слід у
+// логах ДО того, як це станеться, щоб заднім числом можна було побачити,
+// чи пам'ять поступово зростала перед крахом, чи ні.
+setInterval(() => {
+  const m = process.memoryUsage();
+  console.log(
+    `[heartbeat] rss=${(m.rss / 1024 / 1024).toFixed(0)}MB ` +
+    `heapUsed=${(m.heapUsed / 1024 / 1024).toFixed(0)}MB ` +
+    `heapTotal=${(m.heapTotal / 1024 / 1024).toFixed(0)}MB`
+  );
+}, 10 * 60 * 1000);
