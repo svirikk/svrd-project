@@ -20,6 +20,15 @@ function sessionDir(sessionId) {
   return path.join(config.TMP_DIR, sessionId);
 }
 
+/** Короткий, читабельний знімок пам'яті процесу — щоб у логах Railway
+ *  було видно, чи пам'ять поступово росте від запиту до запиту (натяк на
+ *  OOM-крах, який сам по собі НІЧОГО не пише в наші логи — Railway просто
+ *  вбиває контейнер). */
+function memorySnapshot() {
+  const m = process.memoryUsage();
+  return `rss=${(m.rss / 1024 / 1024).toFixed(0)}MB heapUsed=${(m.heapUsed / 1024 / 1024).toFixed(0)}MB`;
+}
+
 /**
  * Запускає дочірній процес і збирає stdout/stderr. Не кидає виняток на
  * ненульовий код виходу — повертає його, щоб виклик міг вирішити сам,
@@ -97,6 +106,9 @@ async function runGeneration(uploadedFilePath, originalExt) {
   const dir = sessionDir(sessionId);
   fs.mkdirSync(dir, { recursive: true });
 
+  const startedAt = Date.now();
+  console.log(`[generate ${sessionId}] старт. ${memorySnapshot()}`);
+
   const originalPath = path.join(dir, `original${originalExt}`);
   const inputPgm = path.join(dir, 'input.pgm');
   const outputPgm = path.join(dir, 'output.pgm');
@@ -106,11 +118,13 @@ async function runGeneration(uploadedFilePath, originalExt) {
   fs.copyFileSync(uploadedFilePath, originalPath);
 
   // --- Крок 1: адаптивна предобробка фото ---
+  const step1Start = Date.now();
   const convertResult = await runProcess(
     config.PYTHON_BIN,
     [config.CONVERT_SCRIPT, originalPath, inputPgm, String(config.IMAGE_SIZE)],
     { timeoutMs: 20_000 }
   );
+  console.log(`[generate ${sessionId}] convert.py завершено за ${Date.now() - step1Start}мс. ${memorySnapshot()}`);
   const convertJson = extractTaggedJson(convertResult.stdout, '##CONVERT_RESULT##');
 
   if (convertResult.code !== 0 || !convertJson || !convertJson.ok) {
@@ -122,6 +136,7 @@ async function runGeneration(uploadedFilePath, originalExt) {
   }
 
   // --- Крок 2: C++ рушій плетіння ниток ---
+  const step2Start = Date.now();
   const engineResult = await runProcess(
     config.STRING_ART_BIN,
     [
@@ -137,6 +152,7 @@ async function runGeneration(uploadedFilePath, originalExt) {
     ],
     { timeoutMs: config.GENERATION_TIMEOUT_MS }
   );
+  console.log(`[generate ${sessionId}] C++ рушій завершено за ${Date.now() - step2Start}мс. ${memorySnapshot()}`);
   const engineJson = extractTaggedJson(engineResult.stdout, '##RESULT##');
 
   if (engineResult.code !== 0 || !engineJson || !fs.existsSync(outputPgm)) {
@@ -148,11 +164,13 @@ async function runGeneration(uploadedFilePath, originalExt) {
   }
 
   // --- Крок 3: PGM -> JPG (повна версія + версія для сайту) ---
+  const step3Start = Date.now();
   const jpgResult = await runProcess(
     config.PYTHON_BIN,
     [path.join(__dirname, '..', '..', 'pgm_to_image.py'), outputPgm, previewFull, previewWeb, '1400'],
     { timeoutMs: 20_000 }
   );
+  console.log(`[generate ${sessionId}] pgm_to_image.py завершено за ${Date.now() - step3Start}мс. ${memorySnapshot()}`);
   const jpgJson = extractTaggedJson(jpgResult.stdout, '##PGM_RESULT##');
 
   if (jpgResult.code !== 0 || !jpgJson || !jpgJson.ok) {
@@ -185,6 +203,8 @@ async function runGeneration(uploadedFilePath, originalExt) {
   fs.writeFileSync(path.join(dir, 'stats.json'), JSON.stringify(stats));
   fs.writeFileSync(path.join(dir, 'pins.json'), JSON.stringify(engineJson.pins));
 
+  console.log(`[generate ${sessionId}] готово за ${Date.now() - startedAt}мс усього. ${memorySnapshot()}`);
+
   return {
     sessionId,
     files: { originalPath, previewFull, previewWeb },
@@ -206,7 +226,11 @@ function cleanupSession(sessionId) {
 }
 
 /** Прибирає сесії, старіші за maxAgeMs (щоб не роздувати диск сирітськими
- *  файлами від людей, які згенерували прев'ю, але не оформили замовлення). */
+ *  файлами від людей, які згенерували прев'ю, але не оформили замовлення).
+ *  Виконується без нагляду людини кожну годину — тому кожен callback
+ *  захищений try/catch: будь-який несподіваний кидок тут інакше стає
+ *  uncaughtException і (через наш власний запобіжник у index.js) валить
+ *  увесь сервер. Краще пропустити один цикл прибирання, ніж покласти сайт. */
 function cleanupStaleSessions(maxAgeMs = 2 * 60 * 60 * 1000) {
   fs.readdir(config.TMP_DIR, (err, entries) => {
     if (err) return;
@@ -215,9 +239,13 @@ function cleanupStaleSessions(maxAgeMs = 2 * 60 * 60 * 1000) {
       if (entry === '.gitkeep') continue;
       const dir = path.join(config.TMP_DIR, entry);
       fs.stat(dir, (statErr, st) => {
-        if (statErr || !st.isDirectory()) return;
-        if (now - st.mtimeMs > maxAgeMs) {
-          fs.rm(dir, { recursive: true, force: true }, () => {});
+        try {
+          if (statErr || !st || !st.isDirectory()) return;
+          if (now - st.mtimeMs > maxAgeMs) {
+            fs.rm(dir, { recursive: true, force: true }, () => {});
+          }
+        } catch (e) {
+          console.error('[cleanupStaleSessions] несподівана помилка для', dir, ':', e.message);
         }
       });
     }
